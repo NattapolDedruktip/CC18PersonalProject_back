@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  firstName     String?       @map("first_name")
+  lastName      String?       @map("last_name")
+  email         String
+  password      String
+  dateOfBirth   String?       @map("date_of_birth")
+  gender        GenderChoice?
+  paymentMethod PaymentChoice @default(CASH) @map("payment_method")
+  image         String?
+  role          RoleChoice    @default(USER)
+  bookings      Booking[]
+  hotels        Hotel[]
+}
+
+enum GenderChoice {
+  MALE
+  FEMALE
+  ETC
+}
+
+enum PaymentChoice {
+  CASH
+  CREDIT
+  PROMTPAY
+}
+
+enum RoleChoice {
+  USER
+  ADMIN
+}
+
+model Booking {
+  id            Int      @id @default(autoincrement())
+  dateCreate    DateTime @default(now()) @map("date_create") @db.Timestamp(0)
+  updateAt      DateTime @updatedAt @map("update_at") @db.Timestamp()
+  price         Int?
+  isPaid        Boolean  @default(false)
+  bookingPeriod DateTime
+
+  userId  Int
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotelId Int
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  Transaction Transaction?
+}
+
+model Transaction {
+  id         Int               @id @default(autoincrement())
+  dateCreate DateTime          @default(now()) @map("date_create") @db.Timestamp(0)
+  updateAt   DateTime          @updatedAt @map("update_at") @db.Timestamp()
+  netSpend   Int
+  paidAt     DateTime
+  status     TransactionStatus @default(UNPAID)
+  imageSlip  String
+
+  booking_id Int     @unique
+  booking    Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+}
+
+enum TransactionStatus {
+  UNPAID
+  PENDING
+  PAID
+  CANCEL
+  COMPLETE
+}
+
+model Hotel {
+  id          Int      @id @default(autoincrement())
+  dateCreate  DateTime @default(now()) @map("date") @db.Timestamp(0)
+  updateAt    DateTime @updatedAt @map("update_at") @db.Timestamp()
+  hotelName   String   @map("hotel_name")
+  address     String
+  hostContact String   @map("host_contact")
+  lat         Float?
+  lng         Float?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  availiableTimes AvailiableTime[]
+  images          Image[]
+  services        Service[]
+  bookings         Booking[]
+}
+
+model Service {
+  id         Int    @id @default(autoincrement())
+  fee        Int
+  seviceName String
+
+  hotelId Int
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model Image {
+  id         Int      @id @default(autoincrement())
+  dateCreate DateTime @default(now()) @map("date") @db.Timestamp(0)
+  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamp()
+  url        String
+
+  hotelId Int
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model AvailiableTime {
+  id        Int     @id @default(autoincrement())
+  date      String
+  period    String
+  isBooking Boolean @default(false)
+  price     Int
+
+  hotelId Int
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
