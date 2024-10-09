@@ -24,7 +24,15 @@ const registerSchema = Joi.object({
     .messages({
         "string.empty" : "Confirm Password is required !!",
         "any.ony" : "Password and Confirm Password is not match"
+    }),
+    role: Joi
+    .string()
+    .valid("USER","HOST")
+    .required()
+    .messages({
+        "string.empty" : "Choose your role !"
     })
+
 
 })
 

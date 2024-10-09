@@ -8,7 +8,7 @@ const createError = require("../utils/createError")
 module.exports.register = async (req,res,next) => {
     try {
         //1 validate req.body ** joi
-        const {email,password,confirmPassword} = req.input 
+        const {email,password,confirmPassword,role} = req.input 
         
 
         //2 is there this email in db ?
@@ -31,6 +31,7 @@ module.exports.register = async (req,res,next) => {
             data : {
                 email : email,
                 password : hashedPassword,
+                role : role
             },
         });
         res.json({message : "register successfully"})

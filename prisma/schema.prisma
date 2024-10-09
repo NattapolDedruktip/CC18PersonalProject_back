@@ -23,7 +23,7 @@ model User {
   gender        GenderChoice?
   paymentMethod PaymentChoice @default(CASH) @map("payment_method")
   image         String?
-  role          RoleChoice    @default(USER)
+  role          RoleChoice
   bookings      Booking[]
   hotels        Hotel[]
 }
@@ -42,7 +42,7 @@ enum PaymentChoice {
 
 enum RoleChoice {
   USER
-  ADMIN
+  HOST
 }
 
 model Booking {
@@ -98,7 +98,7 @@ model Hotel {
   availiableTimes AvailiableTime[]
   images          Image[]
   services        Service[]
-  bookings         Booking[]
+  bookings        Booking[]
 }
 
 model Service {
