@@ -52,6 +52,7 @@ model Booking {
   price         Int?
   isPaid        Boolean  @default(false)
   bookingPeriod DateTime
+  isExpire      Boolean  @default(false)
 
   userId  Int
   user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)

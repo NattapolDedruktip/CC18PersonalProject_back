@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 const hashedPassword = bcrypt.hashSync("123456", 10);
 
-//pasword 123456
+//password 123456
 const userData = [
   {
     firstName: "Andy",

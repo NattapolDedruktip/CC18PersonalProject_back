@@ -1,35 +1,59 @@
 const jwt = require("jsonwebtoken");
 const createError = require("../utils/createError");
+const prisma = require("../config/prisma");
+const { async } = require("jshint/src/prod-params");
 
-exports.auth = (req,res,next) => {
-    try {
-        
-        //step 1 check header
-        const authHeader = req.headers.authorization;
+exports.authCheck = async (req, res, next) => {
+  try {
+    //step 1 check header
+    const authHeader = req.headers.authorization;
 
-        if(!authHeader) {
-            return createError(401,"TOKEN is missing!")
-        }
-
-        const token = authHeader.split(" ")[1]
-
-        console.log(token)
-
-        //step 2 decode payload
-
-        jwt.verify(token,process.env.SECRET,(err,decode)=>{
-
-            if(err) {
-                return createError(401,"TOKEN invalid")
-            }
-
-            //step 3 next
-
-            req.user = decode
-            next()
-        })
-
-    } catch (err) {
-        next(err)
+    if (!authHeader) {
+      return createError(401, "TOKEN is missing!");
     }
-}
+
+    const token = authHeader.split(" ")[1];
+
+    console.log(token);
+
+    //step 2 decode payload
+
+    const decode = jwt.verify(token, process.env.SECRET);
+
+    req.user = decode;
+    console.log(decode.email);
+    const user = await prisma.user.findFirst({
+      where: {
+        email: req.user.email,
+      },
+    });
+
+    if (!user) {
+      return createError(401, "TOKEN invalid");
+    }
+
+    //step 3 next
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.hostCheck = async (req, res, next) => {
+  try {
+    const { email } = req.user.email;
+
+    const HostUser = await prisma.user.findFirst({
+      where: { email: email },
+    });
+    if (!HostUser ?? HostUser.role !== "HOST") {
+      return createError(403, "Access Denied");
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+    res.status(500).json({ message: "Error HOST access denied" });
+  }
+};
