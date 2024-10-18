@@ -8,8 +8,8 @@ const { authCheck } = require("../middleware/auth");
 userRouter.get("/", authCheck, userController.getUserInfo);
 userRouter.get("/all", authCheck, userController.getAllInfo);
 userRouter.post("/profileImage", authCheck, userController.createProfileImage);
-userRouter.delete(
-  "/profileImage",
+userRouter.post(
+  "/removeProfileImage",
   authCheck,
   userController.removeProfileImage
 );

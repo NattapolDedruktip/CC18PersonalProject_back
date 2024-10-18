@@ -62,15 +62,36 @@ cloudinary.config({
 
 module.exports.createProfileImage = async (req, res, next) => {
   try {
+    //step1 find user in db
+    //step2  is there public id in user ?  if there is  delete that public from cloudinary first
+    const { id } = req.user;
+    const user = await prisma.user.findFirst({
+      where: {
+        id: id,
+      },
+    });
+    console.log(user);
+    if (user.imagePublicId) {
+      //delete in clound
+      await cloudinary.uploader.destroy(
+        user.imagePublicId,
+        function (error, result) {
+          if (error) {
+            console.log("ERROR", error);
+          } else {
+            console.log("RESULT", result);
+          }
+        }
+      );
+    }
     //step 3 get file from front
 
-    const { id } = req.user;
     const image = req.body.image;
     // console.log(image, id);
     const result = await cloudinary.uploader.upload(req.body.image, {
       public_id: `FAKEHOTE-${Date.now()}`,
       resource_type: "auto",
-      folder: "FakeHoteCC18",
+      folder: "FakeHoteCC18_USER",
     });
     const UploadedImage = await prisma.user.update({
       where: {
@@ -82,7 +103,6 @@ module.exports.createProfileImage = async (req, res, next) => {
       },
     });
 
-    //need to prisma here to update UserImage DB
     res.json("hello");
   } catch (err) {
     next(err);
@@ -91,6 +111,30 @@ module.exports.createProfileImage = async (req, res, next) => {
 
 module.exports.removeProfileImage = async (req, res, next) => {
   try {
+    const { id } = req.user;
+    const { publicId } = req.body;
+    console.log(publicId);
+
+    //delete in db
+    await prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        userImage: "",
+        imagePublicId: "",
+      },
+    });
+
+    //delete in clound
+    await cloudinary.uploader.destroy(publicId, function (error, result) {
+      if (error) {
+        console.log("ERROR", error);
+      } else {
+        console.log("RESULT", result);
+      }
+    });
+
     res.json("remove image");
   } catch (err) {
     next(err);
