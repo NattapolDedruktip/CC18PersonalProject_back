@@ -17,7 +17,7 @@ const userData = [
     password: hashedPassword,
     gender: "MALE",
     email: "anddy@gmail.com",
-    image: "https://www.svgrepo.com/show/446525/avatar.svg",
+    // image: "https://www.svgrepo.com/show/446525/avatar.svg",
     role: "USER",
   },
   {
@@ -26,7 +26,7 @@ const userData = [
     password: hashedPassword,
     gender: "MALE",
     email: "bobby@ggg.gmail.com",
-    image: "https://www.svgrepo.com/show/446478/avatar-portrait.svg",
+    // image: "https://www.svgrepo.com/show/446478/avatar-portrait.svg",
     role: "HOST",
   },
   {
@@ -35,7 +35,7 @@ const userData = [
     password: hashedPassword,
     gender: "FEMALE",
     email: "candy@gmail.com",
-    image: "https://www.svgrepo.com/show/446491/avatar.svg",
+    // image: "https://www.svgrepo.com/show/446491/avatar.svg",
     role: "USER",
   },
   {
@@ -44,7 +44,7 @@ const userData = [
     password: hashedPassword,
     gender: "ETC",
     email: "danny@gmail.com",
-    image: "https://www.svgrepo.com/show/446490/avatar-portrait.svg",
+    // image: "https://www.svgrepo.com/show/446490/avatar-portrait.svg",
     role: "HOST",
   },
 ];

@@ -65,13 +65,14 @@ module.exports.login = async (req, res, next) => {
       id: user.id,
       email: user.email,
       role: user.role,
-      image: user.image,
     };
 
     console.log(payload);
 
     //5 generate token
-    const genToken = jwt.sign(payload, process.env.SECRET, { expiresIn: "1d" });
+    const genToken = jwt.sign(payload, process.env.SECRET, {
+      expiresIn: "30d",
+    });
 
     //6 send to front-end
     res.json({

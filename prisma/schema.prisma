@@ -22,10 +22,11 @@ model User {
   dateOfBirth   String?       @map("date_of_birth")
   gender        GenderChoice?
   paymentMethod PaymentChoice @default(CASH) @map("payment_method")
-  image         String?
   role          RoleChoice
   bookings      Booking[]
   hotels        Hotel[]
+  userImage     String?
+  imagePublicId String?
 }
 
 enum GenderChoice {
@@ -53,6 +54,7 @@ model Booking {
   isPaid        Boolean  @default(false)
   bookingPeriod DateTime
   isExpire      Boolean  @default(false)
+  isBook        Boolean  @default(false)
 
   userId  Int
   user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -69,10 +71,10 @@ model Transaction {
   netSpend   Int
   paidAt     DateTime
   status     TransactionStatus @default(UNPAID)
-  imageSlip  String
 
-  booking_id Int     @unique
-  booking    Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  booking_id Int        @unique
+  booking    Booking    @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  imageSlip  ImageSlip?
 }
 
 enum TransactionStatus {
@@ -83,12 +85,26 @@ enum TransactionStatus {
   COMPLETE
 }
 
+model ImageSlip {
+  id         Int      @id @default(autoincrement())
+  url        String?
+  asset_id   String?
+  public_id  String?
+  secure_url String?
+  dateCreate DateTime @default(now()) @map("date_create") @db.Timestamp(0)
+  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamp()
+
+  transactionId Int         @unique
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+}
+
 model Hotel {
   id          Int      @id @default(autoincrement())
   dateCreate  DateTime @default(now()) @map("date") @db.Timestamp(0)
   updateAt    DateTime @updatedAt @map("update_at") @db.Timestamp()
   hotelName   String   @map("hotel_name")
   address     String
+  description String?  @db.VarChar(255)
   hostContact String   @map("host_contact")
   lat         Float?
   lng         Float?
@@ -97,9 +113,10 @@ model Hotel {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   availiableTimes AvailiableTime[]
-  images          Image[]
-  services        Service[]
-  bookings        Booking[]
+
+  services    Service[]
+  bookings    Booking[]
+  hotelImages HotelImage[]
 }
 
 model Service {
@@ -111,11 +128,14 @@ model Service {
   hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 }
 
-model Image {
+model HotelImage {
   id         Int      @id @default(autoincrement())
   dateCreate DateTime @default(now()) @map("date") @db.Timestamp(0)
   updateAt   DateTime @updatedAt @map("update_at") @db.Timestamp()
-  url        String
+  url        String?
+  asset_id   String?
+  public_id  String?
+  secure_url String?
 
   hotelId Int
   hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
