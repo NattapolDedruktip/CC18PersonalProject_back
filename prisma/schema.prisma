@@ -134,7 +134,7 @@ model HotelImage {
   updateAt   DateTime @updatedAt @map("update_at") @db.Timestamp()
   url        String?
   asset_id   String?
-  public_id  String?
+  public_id  String?  @unique
   secure_url String?
 
   hotelId Int
@@ -143,8 +143,10 @@ model HotelImage {
 
 model AvailiableTime {
   id        Int     @id @default(autoincrement())
-  date      String
-  period    String
+  startDate String
+  endDate   String
+  startTime String
+  endTime   String
   isBooking Boolean @default(false)
   price     Int
 

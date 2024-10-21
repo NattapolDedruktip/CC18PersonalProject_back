@@ -126,7 +126,7 @@ module.exports.removeProfileImage = async (req, res, next) => {
       },
     });
 
-    //delete in clound
+    //delete in cloundinary
     await cloudinary.uploader.destroy(publicId, function (error, result) {
       if (error) {
         console.log("ERROR", error);
