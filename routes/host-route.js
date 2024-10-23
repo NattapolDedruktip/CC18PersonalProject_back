@@ -59,6 +59,13 @@ hostRouter.get(
   hostController.getAvailableTimeByHoteId
 );
 
+hostRouter.get(
+  "/getHoteAvailableTimeById/:id",
+  authCheck,
+
+  hostController.getAvailableTimeById
+);
+
 hostRouter.delete(
   "/removeAvailableTime/:id",
   authCheck,
@@ -79,6 +86,33 @@ hostRouter.get(
   authCheck,
   hostCheck,
   hostController.getAllLatLng
+);
+
+//transaction
+hostRouter.get(
+  "/getAllTransactions",
+  authCheck,
+  hostCheck,
+  hostController.getAllTransaction
+);
+hostRouter.patch(
+  "/confirmTransaction",
+  authCheck,
+  hostCheck,
+  hostController.confirmTransaction
+);
+hostRouter.patch(
+  "/cancelTransaction",
+  authCheck,
+  hostCheck,
+  hostController.cancelTransaction
+);
+
+hostRouter.get(
+  "/transactionHistory",
+  authCheck,
+  hostCheck,
+  hostController.getTransactionHistory
 );
 
 module.exports = hostRouter;

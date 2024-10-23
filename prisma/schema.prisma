@@ -47,21 +47,22 @@ enum RoleChoice {
 }
 
 model Booking {
-  id            Int      @id @default(autoincrement())
-  dateCreate    DateTime @default(now()) @map("date_create") @db.Timestamp(0)
-  updateAt      DateTime @updatedAt @map("update_at") @db.Timestamp()
-  price         Int?
-  isPaid        Boolean  @default(false)
-  bookingPeriod DateTime
-  isExpire      Boolean  @default(false)
-  isBook        Boolean  @default(false)
+  id         Int      @id @default(autoincrement())
+  dateCreate DateTime @default(now()) @map("date_create") @db.Timestamp(0)
+  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamp()
+  price      Int?
+  isPaid     Boolean  @default(false)
+  isBook     Boolean  @default(false)
+  isSlipSend Boolean  @default(false)
 
-  userId  Int
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hotelId Int
-  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  availiableTimeId Int            @unique
+  availiableTime   AvailiableTime @relation(fields: [availiableTimeId], references: [id], onDelete: Cascade)
+  userId           Int
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotelId          Int
+  hotel            Hotel          @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 
-  Transaction Transaction?
+  transaction Transaction?
 }
 
 model Transaction {
@@ -69,12 +70,12 @@ model Transaction {
   dateCreate DateTime          @default(now()) @map("date_create") @db.Timestamp(0)
   updateAt   DateTime          @updatedAt @map("update_at") @db.Timestamp()
   netSpend   Int
-  paidAt     DateTime
   status     TransactionStatus @default(UNPAID)
+  public_id  String?
+  secure_url String?
 
-  booking_id Int        @unique
-  booking    Booking    @relation(fields: [booking_id], references: [id], onDelete: Cascade)
-  imageSlip  ImageSlip?
+  booking_id Int     @unique
+  booking    Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
 }
 
 enum TransactionStatus {
@@ -83,19 +84,6 @@ enum TransactionStatus {
   PAID
   CANCEL
   COMPLETE
-}
-
-model ImageSlip {
-  id         Int      @id @default(autoincrement())
-  url        String?
-  asset_id   String?
-  public_id  String?
-  secure_url String?
-  dateCreate DateTime @default(now()) @map("date_create") @db.Timestamp(0)
-  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamp()
-
-  transactionId Int         @unique
-  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 }
 
 model Hotel {
@@ -151,5 +139,6 @@ model AvailiableTime {
   price     Int
 
   hotelId Int
-  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  hotel   Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  booking Booking?
 }

@@ -13,5 +13,19 @@ userRouter.post(
   authCheck,
   userController.removeProfileImage
 );
+userRouter.post("/createBooking", authCheck, userController.createBooking);
+userRouter.get("/getMybooking", authCheck, userController.getBookingByUserId);
+userRouter.post("/uploadSlip", authCheck, userController.uploadSlip);
+userRouter.delete(
+  "/cancelBooking/:id",
+  authCheck,
+  userController.cancelBooking
+);
+
+userRouter.get(
+  "/bookingHistory/:id",
+  authCheck,
+  userController.getBookingHistory
+);
 
 module.exports = userRouter;

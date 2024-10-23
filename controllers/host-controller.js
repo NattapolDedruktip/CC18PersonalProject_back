@@ -223,6 +223,21 @@ module.exports.getAvailableTimeByHoteId = async (req, res, next) => {
   }
 };
 
+module.exports.getAvailableTimeById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const freeTime = await prisma.availiableTime.findFirst({
+      where: {
+        id: Number(id),
+      },
+    });
+    res.json(freeTime);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports.removeAvailableTime = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -281,6 +296,121 @@ module.exports.getAllLatLng = async (req, res, next) => {
       },
     });
     res.json(AllLatLng);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//transaction
+module.exports.getAllTransaction = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+
+    const allTransactions = await prisma.transaction.findMany({
+      where: {
+        status: "UNPAID",
+        booking: {
+          hotel: {
+            userId: id,
+          },
+        },
+      },
+      include: {
+        booking: {
+          include: {
+            hotel: true,
+          },
+        },
+      },
+    });
+
+    console.log("transacstion", allTransactions);
+    res.json(allTransactions);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.confirmTransaction = async (req, res, next) => {
+  try {
+    const { transactionId, bookingId } = req.body;
+
+    const updatedTransaction = await prisma.transaction.update({
+      where: {
+        id: transactionId,
+      },
+      data: {
+        status: "COMPLETE",
+      },
+    });
+
+    const updatedBooking = await prisma.booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: {
+        isPaid: true,
+      },
+    });
+
+    res.json("confirm transaction");
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.cancelTransaction = async (req, res, next) => {
+  try {
+    const { transactionId, bookingId } = req.body;
+
+    const updatedTransaction = await prisma.transaction.update({
+      where: {
+        id: transactionId,
+      },
+      data: {
+        status: "CANCEL",
+      },
+    });
+
+    // const updatedBooking = await prisma.booking.update({
+    //   where: {
+    //     id: bookingId,
+    //   },
+    //   data: {
+    //     isPaid: true,
+    //   },
+    // });
+
+    res.json("confirm transaction");
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.getTransactionHistory = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+
+    const allTransactions = await prisma.transaction.findMany({
+      where: {
+        status: "COMPLETE",
+        booking: {
+          hotel: {
+            userId: id,
+          },
+        },
+      },
+      include: {
+        booking: {
+          include: {
+            hotel: true,
+          },
+        },
+      },
+    });
+
+    console.log("transacstion", allTransactions);
+    res.json(allTransactions);
   } catch (err) {
     next(err);
   }

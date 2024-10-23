@@ -140,3 +140,163 @@ module.exports.removeProfileImage = async (req, res, next) => {
     next(err);
   }
 };
+
+//booking
+module.exports.createBooking = async (req, res, next) => {
+  try {
+    const { hotelId, price, id } = req.body;
+    // console.log(availableTimeItem);
+
+    //createBooking
+    console.log(id);
+    const newBooking = await prisma.booking.create({
+      data: {
+        price: price,
+        hotelId: hotelId,
+        availiableTimeId: id,
+        userId: req.user.id,
+        isBook: true,
+      },
+    });
+
+    //change status availiableTime
+    const updateAvailiableTime = await prisma.availiableTime.update({
+      where: {
+        id: id,
+      },
+      data: {
+        isBooking: true,
+      },
+    });
+
+    // console.log(newBooking);
+    // console.log(updateAvailiableTime);
+    res.json("hello");
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
+
+module.exports.getBookingByUserId = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const myBooking = await prisma.booking.findMany({
+      where: {
+        userId: userId,
+        isSlipSend: false,
+        isBook: true,
+      },
+      include: {
+        availiableTime: true,
+        hotel: {
+          include: {
+            hotelImages: true,
+          },
+        },
+      },
+    });
+
+    res.json(myBooking);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.uploadSlip = async (req, res, next) => {
+  try {
+    // console.log(req.body.bookingId, req.body.netSpend);
+    const image = req.body.image;
+    const booking_Id = req.body.bookingId;
+    // const booking_Id = 2;
+    const netSpend = req.body.netSpend;
+    // console.log(image, id);
+    const result = await cloudinary.uploader.upload(req.body.image, {
+      public_id: `SLIPIMAGE-${Date.now()}`,
+      resource_type: "auto",
+      folder: "FakeHoteCC18_SLIPIMAGE",
+    });
+
+    // console.log(888888);
+    console.log(result);
+    const newUploadSlip = await prisma.transaction.create({
+      data: {
+        secure_url: result.secure_url,
+        public_id: result.public_id,
+        netSpend: Number(netSpend),
+        booking_id: booking_Id,
+      },
+    });
+    console.log(999999999);
+    const newBookingStatus = await prisma.booking.update({
+      where: {
+        id: booking_Id,
+      },
+      data: {
+        isSlipSend: true,
+      },
+    });
+    res.json("susccues");
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.cancelBooking = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+
+    const newStatusBooking = await prisma.booking.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        isBook: false,
+      },
+    });
+
+    const newStatusAvailableTime = await prisma.availiableTime.update({
+      where: {
+        id: newStatusBooking.availiableTimeId,
+      },
+      data: {
+        isBooking: false,
+      },
+    });
+
+    res.json("cancel Booking");
+  } catch (err) {
+    next(err);
+  }
+};
+
+//history
+
+module.exports.getBookingHistory = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    // console.log(id);
+    const bookingHistory = await prisma.booking.findMany({
+      where: {
+        userId: Number(id),
+        isPaid: true,
+        isBook: true,
+        isSlipSend: true,
+      },
+      include: {
+        hotel: {
+          include: {
+            hotelImages: true, // Include hotelImages related to each hotel
+          },
+        },
+        availiableTime: true, // Include AvailiableTime associated with the booking
+      },
+    });
+
+    res.json(bookingHistory);
+  } catch (err) {
+    next(err);
+  }
+};
