@@ -28,7 +28,7 @@ module.exports.getUserInfo = async (req, res, next) => {
 
 module.exports.getAllInfo = async (req, res, next) => {
   try {
-    console.log(req.user.email);
+    console.log("check email", req.user.email);
     const user = await prisma.user.findFirst({
       where: {
         email: req.user.email,
@@ -46,7 +46,8 @@ module.exports.getAllInfo = async (req, res, next) => {
         imagePublicId: true,
       },
     });
-    res.json({ user });
+    console.log(user);
+    res.json(user);
   } catch (err) {
     next(err);
   }
@@ -141,24 +142,71 @@ module.exports.removeProfileImage = async (req, res, next) => {
   }
 };
 
+module.exports.editProfile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const form = req.body;
+    // console.log(id);
+    // console.log(form);
+
+    const newProfile = await prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        dateOfBirth: form.dateOfBirth,
+        gender: form.gender,
+        paymentMethod: form.paymentMethod,
+      },
+    });
+    res.json(newProfile);
+  } catch (err) {
+    next(err);
+  }
+};
+
 //booking
 module.exports.createBooking = async (req, res, next) => {
   try {
     const { hotelId, price, id } = req.body;
     // console.log(availableTimeItem);
 
-    //createBooking
-    console.log(id);
-    const newBooking = await prisma.booking.create({
-      data: {
-        price: price,
-        hotelId: hotelId,
-        availiableTimeId: id,
-        userId: req.user.id,
-        isBook: true,
+    // find first  if there is  id     then edit status
+    const findAvailableTime = await prisma.booking.findFirst({
+      where: {
+        availiableTimeId: Number(id),
       },
     });
 
+    if (findAvailableTime) {
+      const updateBooking = await prisma.booking.update({
+        where: {
+          id: findAvailableTime.id,
+        },
+        data: {
+          price: price,
+          hotelId: hotelId,
+          availiableTimeId: id,
+          userId: req.user.id,
+          isBook: true,
+        },
+      });
+    } else {
+      //createBooking
+      console.log(id);
+      const newBooking = await prisma.booking.create({
+        data: {
+          price: price,
+          hotelId: hotelId,
+          availiableTimeId: id,
+          userId: req.user.id,
+          isBook: true,
+        },
+      });
+    }
     //change status availiableTime
     const updateAvailiableTime = await prisma.availiableTime.update({
       where: {

@@ -21,6 +21,7 @@ userRouter.delete(
   authCheck,
   userController.cancelBooking
 );
+userRouter.patch("/editProfile/:id", authCheck, userController.editProfile);
 
 userRouter.get(
   "/bookingHistory/:id",

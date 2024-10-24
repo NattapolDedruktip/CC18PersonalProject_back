@@ -20,11 +20,11 @@ exports.authCheck = async (req, res, next) => {
 
     const decode = jwt.verify(token, process.env.SECRET);
 
-    req.user = decode;
-    console.log(decode.email);
+    console.log(decode);
+
     const user = await prisma.user.findFirst({
       where: {
-        email: req.user.email,
+        id: Number(decode.id),
       },
     });
 
@@ -32,6 +32,7 @@ exports.authCheck = async (req, res, next) => {
       return createError(401, "TOKEN invalid");
     }
 
+    req.user = user;
     //step 3 next
 
     next();
