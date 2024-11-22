@@ -1,7 +1,6 @@
 const prisma = require("../config/prisma");
 const bcrypt = require("bcryptjs");
 const createError = require("../utils/createError");
-const { auto } = require("async");
 
 //step1 at backend upload photo
 const cloudinary = require("cloudinary").v2;

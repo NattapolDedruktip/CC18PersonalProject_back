@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const createError = require("../utils/createError");
 const prisma = require("../config/prisma");
-const { async } = require("jshint/src/prod-params");
 
 exports.authCheck = async (req, res, next) => {
   try {

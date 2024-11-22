@@ -2,7 +2,6 @@ const express = require("express");
 const hostRouter = express.Router();
 const hostController = require("../controllers/host-controller");
 const { authCheck, hostCheck } = require("../middleware/auth");
-const { host } = require("pg/lib/defaults");
 
 hostRouter.get("", authCheck, hostCheck, hostController.getHostInfo);
 hostRouter.post(
